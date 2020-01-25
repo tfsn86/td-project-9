@@ -1,18 +1,16 @@
 'use strict';
 
-const Sequelize = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
 	const User = sequelize.define(
 		'User',
 		{
 			id: {
-				type: Sequelize.INTEGER,
+				type: DataTypes.INTEGER,
 				primaryKey: true,
 				autoIncrement: true
 			},
 			firstName: {
-				type: Sequelize.STRING,
+				type: DataTypes.STRING,
 				allowNull: false,
 				validate: {
 					notNull: {
@@ -24,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
 				}
 			},
 			lastName: {
-				type: Sequelize.STRING,
+				type: DataTypes.STRING,
 				allowNull: false,
 				validate: {
 					notNull: {
@@ -36,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
 				}
 			},
 			emailAddress: {
-				type: Sequelize.STRING,
+				type: DataTypes.STRING,
 				allowNull: false,
 				validate: {
 					notNull: {
@@ -48,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
 				}
 			},
 			password: {
-				type: Sequelize.STRING,
+				type: DataTypes.STRING,
 				allowNull: false,
 				validate: {
 					notNull: {
@@ -60,11 +58,11 @@ module.exports = (sequelize, DataTypes) => {
 				}
 			}
 		},
-		{}
+		{ sequelize }
 	);
+
 	User.associate = models => {
-		User.hasMany(models.Course, {
-			as: 'user',
+		models.User.hasMany(models.Course, {
 			foreignKey: { fieldName: 'userId', allowNull: false }
 		});
 	};

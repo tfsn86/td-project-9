@@ -23,7 +23,7 @@ app.use(bodyParser.json());
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
-// TODO setup your api routes here
+// API routes
 app.use('/api', routes);
 
 (async () => {
@@ -34,13 +34,6 @@ app.use('/api', routes);
 		console.log('Not able to connect to the database:', error);
 	}
 })();
-
-// setup a friendly greeting for the root route
-app.get('/', (req, res) => {
-	res.json({
-		message: 'Welcome to the REST API project!'
-	});
-});
 
 // send 404 if no other route matched
 app.use((req, res) => {

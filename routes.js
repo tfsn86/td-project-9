@@ -1,12 +1,14 @@
 'use strict';
 
 const express = require('express');
-const bcryptjs = require('bcryptjs');
-const auth = require('basic-auth');
+const router = express.Router();
+
 const User = require('./models').User;
 const Course = require('./models').Course;
 
-const router = express.Router();
+const bcryptjs = require('bcryptjs');
+const auth = require('basic-auth');
+
 const { check, validationResult } = require('express-validator');
 
 function asyncHandler(cb) {
@@ -74,7 +76,30 @@ router.get('/users', authenticateUser, (req, res) => {
 // Route that creates a user
 router.post(
 	'/users',
-	asyncHandler(async (req, res) => {})
+	[
+		check('emailAddress')
+			.isEmail()
+			.withMessage('Please provide a valid email address')
+	],
+	asyncHandler(async (req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			const errorMessages = errors.array().map(error => error.msg);
+			res.status(400).json({ errors: errorMessages });
+		} else {
+			const user = req.body;
+
+			if (user.password) {
+				user.password = bcryptjs.hashSync(user.password);
+			}
+
+			await User.create(req.body);
+			res
+				.status(201)
+				.location('/')
+				.end();
+		}
+	})
 );
 
 /**Course routes */

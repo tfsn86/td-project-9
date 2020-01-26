@@ -139,20 +139,77 @@ router.get(
 
 // Creates a course, sets the Location header to the URI for the course, and returns no content
 router.post(
-	'courses/:id',
-	asyncHandler(async (req, res) => {})
+	'/courses',
+	authenticateUser,
+	asyncHandler(async (req, res) => {
+		const course = await Course.create(req.body);
+		res
+			.status(201)
+			.location('/courses' + course.id)
+			.end();
+	})
 );
 
 // Updates a course and returns no content
 router.put(
 	'/courses/:id',
-	asyncHandler(async (req, res) => {})
+	[
+		check('title').exists({
+			checkFalsy: true,
+			checkNull: true
+		}),
+		check('description').exists({
+			checkFalsy: true,
+			checkNull: true
+		}),
+		check('userId').exists({
+			checkFalsy: true,
+			checkNull: true
+		})
+	],
+	authenticateUser,
+	asyncHandler(async (req, res) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			const errorMessages = errors.array().map(error => error.msg);
+			res.status(400).json({ errors: errorMessages });
+		} else {
+			const authUser = req.currentUser;
+			const course = await Course.findByPk(req.params.id);
+
+			if (authUser.id === course.userId) {
+				await course.update(req.body);
+				res.status(204).end();
+			} else {
+				res
+					.status(400)
+					.json({ message: 'Changes can only be made to your own courses' });
+			}
+		}
+	})
 );
 
 // Deletes a course and returns no content
 router.delete(
 	'/courses/:id',
-	asyncHandler(async (req, res) => {})
+	authenticateUser,
+	asyncHandler(async (req, res) => {
+		const authUser = req.currentUser;
+		const course = await Course.findByPk(req.params.id);
+		if (course) {
+			if (authUser.id === course.id) {
+				await course.destroy();
+				res.status(204).end();
+			} else {
+				res
+					.status(403)
+					.json({ message: 'You can only delete your own courses' });
+			}
+		} else {
+			next();
+		}
+	})
 );
 
 module.exports = router;

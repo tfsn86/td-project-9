@@ -52,7 +52,7 @@ const authenticateUser = asyncHandler(async (req, res, next) => {
 	if (message) {
 		console.warn(message);
 
-		res.status(401).json({ message: 'Access Denied' });
+		res.status(401).json({ message });
 	} else {
 		next();
 	}
@@ -183,7 +183,7 @@ router.put(
 				res.status(204).end();
 			} else {
 				res
-					.status(400)
+					.status(403)
 					.json({ message: 'Changes can only be made to your own courses' });
 			}
 		}

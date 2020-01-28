@@ -145,7 +145,7 @@ router.post(
 		const course = await Course.create(req.body);
 		res
 			.status(201)
-			.location('/courses' + course.id)
+			.location('/courses/' + course.id)
 			.end();
 	})
 );
@@ -198,7 +198,7 @@ router.delete(
 		const authUser = req.currentUser;
 		const course = await Course.findByPk(req.params.id);
 		if (course) {
-			if (authUser.id === course.id) {
+			if (authUser.id === course.userId) {
 				await course.destroy();
 				res.status(204).end();
 			} else {
